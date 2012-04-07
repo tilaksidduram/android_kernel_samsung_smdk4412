@@ -162,6 +162,10 @@ struct s3cfb_extdsp_lcd {
 #include <linux/i2c/touchkey_i2c.h>
 #endif
 
+#ifdef CONFIG_KEXEC_HARDBOOT
+#include <asm/kexec.h>
+#endif
+
 #if defined(CONFIG_MACH_GC1)
 #include <mach/gc1-jack.h>
 #endif
@@ -2427,8 +2431,8 @@ static struct s5p_platform_hpd hdmi_hpd_data __initdata = {
 #if defined(CONFIG_MACH_GC1) && defined(CONFIG_HDMI_CONTROLLED_BY_EXT_IC)
 	.ext_ic_control = hdmi_ext_ic_control_gc1,
 #endif
-
 };
+
 static struct s5p_platform_cec hdmi_cec_data __initdata = {
 
 };
