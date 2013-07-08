@@ -123,6 +123,12 @@ config CPU_FREQ_DEFAULT_GOV_PEGASUSQ
 	bool "pegasusq"
 	select CPU_FREQ_GOV_PEGASUSQ
 
+config CPU_FREQ_DEFAULT_GOV_ZZMOOVE
+	bool "zzmoove"
+	select CPU_FREQ_GOV_ZZMOOVE
+	help
+	  Use zzmoove as default
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -265,6 +271,14 @@ config CPU_FREQ_GOV_ADAPTIVE
 
 config CPU_FREQ_GOV_PEGASUSQ
 	tristate "'pegasusq' cpufreq policy governor"
+
+config CPU_FREQ_GOV_ZZMOOVE
+	tristate "'zzmoove' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  ZZMoove governor is based on the modified conservative'smoove'
+	  governor from Michael WeingaertnerModified by Zane Zaminsky to
+	  be hotplug-able and optimzed for use with Samsung I9300. 
 
 config CPU_FREQ_GOV_SLP
 	tristate "'slp' cpufreq policy governor"
