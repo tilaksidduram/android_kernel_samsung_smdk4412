@@ -19,4 +19,10 @@
 #define MAX_PHYSMEM_BITS	32
 #define SECTION_SIZE_BITS	28
 
+#ifdef CONFIG_KEXEC_HARDBOOT
+#ifdef CONFIG_MACH_MIDAS
+#define KEXEC_HB_PAGE_ADDR		UL(0xbfd00000)
+#endif
+#endif
+
 #endif /* __ASM_ARCH_MEMORY_H */
