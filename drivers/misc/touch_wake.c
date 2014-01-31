@@ -39,6 +39,7 @@ extern void touchscreen_enable(void);
 extern void touchscreen_disable(void);
 
 static bool touchwake_enabled = false;
+static bool keypower_mode = false;
 static bool touch_disabled = false;
 static bool device_suspended = false;
 static bool timed_out = true;
@@ -217,6 +218,28 @@ static ssize_t touchwake_status_write(struct device * dev, struct device_attribu
 	return size;
 }
 
+static ssize_t touchwake_keypower_read(struct device * dev, struct device_attribute * attr, char * buf)
+{
+	return sprintf(buf, "%u\n", (keypower_mode ? 1 : 0));
+}
+
+static ssize_t touchwake_keypower_write(struct device * dev, struct device_attribute * attr, const char * buf, size_t size)
+{
+	unsigned int ret = -EINVAL;
+	int val;
+
+	// read value from input buffer
+	ret = sscanf(buf, "%d", &val);
+
+	// check value and store if valid
+	if ((val == 0) ||  (val == 1))
+	{
+		keypower_mode = val;
+	}
+
+	return size;
+}
+
 static ssize_t touchwake_delay_read(struct device * dev, struct device_attribute * attr, char * buf)
 {
 	return sprintf(buf, "%u\n", touchoff_delay);
@@ -252,6 +275,7 @@ static ssize_t touchwake_debug(struct device * dev, struct device_attribute * at
 
 static DEVICE_ATTR(enabled, S_IRUGO | S_IWUGO, touchwake_status_read, touchwake_status_write);
 static DEVICE_ATTR(delay, S_IRUGO | S_IWUGO, touchwake_delay_read, touchwake_delay_write);
+static DEVICE_ATTR(keypower_mode, S_IRUGO | S_IWUGO, touchwake_keypower_read, touchwake_keypower_write);
 static DEVICE_ATTR(version, S_IRUGO , touchwake_version, NULL);
 #ifdef DEBUG_PRINT
 static DEVICE_ATTR(debug, S_IRUGO , touchwake_debug, NULL);
@@ -261,6 +285,7 @@ static struct attribute *touchwake_notification_attributes[] =
 {
 	&dev_attr_enabled.attr,
 	&dev_attr_delay.attr,
+	&dev_attr_keypower_mode.attr,
 	&dev_attr_version.attr,
 #ifdef DEBUG_PRINT
 	&dev_attr_debug.attr,
@@ -308,7 +333,9 @@ void powerkey_pressed(void)
 #endif
 
 	do_gettimeofday(&last_powerkeypress);
-	timed_out = false; // Yank555 : consider user is indeed turning off the device
+
+	if (!keypower_mode)
+		timed_out = false; // Yank555 : consider user is indeed turning off the device
 
 	return;
 }
