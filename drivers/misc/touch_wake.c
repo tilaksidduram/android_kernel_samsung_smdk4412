@@ -47,8 +47,8 @@ static bool timed_out = true;
 static bool prox_near = false;
 bool knockon = false;
 static bool knocked = false;
-static unsigned int touchoff_delay = 10000;
-static unsigned int charging_touchoff_delay = 60000;
+static unsigned int touchoff_delay = 60000;
+static unsigned int charging_touchoff_delay = 180000;
 
 static void touchwake_touchoff(struct work_struct * touchoff_work);
 static DECLARE_DELAYED_WORK(touchoff_work, touchwake_touchoff);
