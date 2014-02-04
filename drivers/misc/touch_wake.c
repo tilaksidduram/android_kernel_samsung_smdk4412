@@ -308,7 +308,7 @@ static ssize_t touchwake_knockon_write(struct device * dev, struct device_attrib
 
 static ssize_t touchwake_delay_read(struct device * dev, struct device_attribute * attr, char * buf)
 {
-	return sprintf(buf, "%u\n", touchoff_delay);
+	return sprintf(buf, "%u\n", touchoff_delay / 1000);
 }
 
 static ssize_t touchwake_delay_write(struct device * dev, struct device_attribute * attr, const char * buf, size_t size)
@@ -316,7 +316,7 @@ static ssize_t touchwake_delay_write(struct device * dev, struct device_attribut
 	unsigned int data;
 
 	if(sscanf(buf, "%u\n", &data) == 1) {
-		touchoff_delay = data;
+		touchoff_delay = data * 1000;
 #ifdef DEBUG_PRINT
 		pr_info("[TOUCHWAKE] Delay set to %u\n", touchoff_delay); 
 	} else 	{
@@ -329,7 +329,7 @@ static ssize_t touchwake_delay_write(struct device * dev, struct device_attribut
 
 static ssize_t touchwake_charging_delay_read(struct device * dev, struct device_attribute * attr, char * buf)
 {
-	return sprintf(buf, "%u\n", charging_touchoff_delay);
+	return sprintf(buf, "%u\n", charging_touchoff_delay / 1000);
 }
 
 static ssize_t touchwake_charging_delay_write(struct device * dev, struct device_attribute * attr, const char * buf, size_t size)
@@ -337,7 +337,7 @@ static ssize_t touchwake_charging_delay_write(struct device * dev, struct device
 	unsigned int data;
 
 	if(sscanf(buf, "%u\n", &data) == 1) {
-		charging_touchoff_delay = data;
+		charging_touchoff_delay = data * 1000;
 #ifdef DEBUG_PRINT
 		pr_info("[TOUCHWAKE] Delay set to %u\n", charging_touchoff_delay); 
 	} else 	{
