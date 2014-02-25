@@ -34,6 +34,7 @@
 #include <linux/delay.h>
 #include <linux/wakelock.h>
 #include <linux/input.h>
+#include <linux/syscalls.h>
 #include <linux/battery/samsung_battery.h>
 
 extern void touchscreen_enable(void);
@@ -196,6 +197,9 @@ static struct early_suspend touchwake_suspend_data =
 
 static void touchwake_touchoff(struct work_struct * touchoff_work)
 {
+	pr_info("%s: %s +\n", __func__, "sys_sync");
+	sys_sync();
+	pr_info("%s: %s -\n", __func__, "sys_sync");
 	touchwake_disable_touch();
 	wake_unlock(&touchwake_wake_lock);
 
