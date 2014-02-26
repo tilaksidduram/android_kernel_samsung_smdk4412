@@ -599,6 +599,18 @@ static int s5c73m3_get_sensor_fw_binary(struct v4l2_subdev *sd)
 			state->sensor_fw[0],
 			state->sensor_fw[1]);
 	}
+#elif defined(CONFIG_MACH_BAFFIN)
+	if (state->sensor_fw[1] == 'D') {
+		sprintf(fw_path, "/data/cfw/SlimISP_%cK.bin",
+			state->sensor_fw[0]);
+	} else if (state->sensor_fw[1] == 'H') {
+		sprintf(fw_path, "/data/cfw/SlimISP_%cM.bin",
+			state->sensor_fw[0]);
+	} else {
+		sprintf(fw_path, "/data/cfw/SlimISP_%c%c.bin",
+			state->sensor_fw[0],
+			state->sensor_fw[1]);
+	}
 #else
 	if (state->sensor_fw[0] == 'O') {
 		sprintf(fw_path, "/data/cfw/SlimISP_G%c.bin",
