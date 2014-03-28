@@ -347,11 +347,20 @@ CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   =
-AFLAGS_MODULE   =
+
+#
+# Kernel optimizations
+#
+CFLAGS_A9       = -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -marm -munaligned-access -mfpu=neon -funsafe-math-optimizations
+CFLAGS_MODULO   = -fmodulo-sched -fsched-spec-load -fmodulo-sched-allow-regmoves -ftree-vectorize -mvectorize-with-neon-quad -funroll-loops -fgcse-lm -fgcse-sm 
+KERNEL_MODS     = $(CFLAGS_A9) $(CFLAGS_MODULO)
+
+MOD_FLAGS       = -DMODULE $(KERNEL_MODS)
+CFLAGS_MODULE   = $(MODFLAGS)
+AFLAGS_MODULE   = $(MODFLAGS)
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
-AFLAGS_KERNEL	=
+CFLAGS_KERNEL	= $(MODFLAGS)
+AFLAGS_KERNEL	= $(MODFLAGS)
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -369,7 +378,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
-		   -mtune=cortex-a9
+		   $(MODFLAGS)
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
