@@ -2967,6 +2967,25 @@ static struct platform_device exynos4_busfreq = {
 	.name = "exynos-busfreq",
 };
 
+/* Exclude the last 4 kB to preserve the kexec hardboot page. */
+#ifdef CONFIG_ANDROID_RAM_CONSOLE
+#define RAM_CONSOLE_START 0xbfeeeeee
+#define RAM_CONSOLE_SIZE  (SZ_1M-SZ_4K)
+
+static struct resource ram_console_resource[] = {
+	{
+		.flags = IORESOURCE_MEM,
+	},
+};
+
+static struct platform_device ram_console_device = {
+	.name          = "ram_console",
+	.id            = -1,
+	.num_resources = ARRAY_SIZE(ram_console_resource),
+	.resource      = ram_console_resource,
+};
+#endif
+
 static struct platform_device *smdk4412_devices[] __initdata = {
 	&s3c_device_adc,
 };
@@ -3175,6 +3194,9 @@ static struct platform_device *smdk4x12_devices[] __initdata = {
 	&s5p_device_ace,
 #endif
 	&exynos4_busfreq,
+#ifdef CONFIG_ANDROID_RAM_CONSOLE
+	&ram_console_device,
+#endif
 };
 
 #ifdef CONFIG_EXYNOS_SETUP_THERMAL
@@ -3206,6 +3228,16 @@ static struct s5p_platform_cec hdmi_cec_data __initdata = {
 static struct s5p_platform_cec hdmi_cec_data __initdata = {
 
 };
+#endif
+
+#ifdef CONFIG_ANDROID_RAM_CONSOLE
+static void __init smdk4x12_reserve(void)
+{
+	if (memblock_remove(RAM_CONSOLE_START, RAM_CONSOLE_SIZE) == 0) {
+		ram_console_resource[0].start = RAM_CONSOLE_START;
+		ram_console_resource[0].end   = RAM_CONSOLE_START+RAM_CONSOLE_SIZE-1;
+	}
+}
 #endif
 
 #ifdef CONFIG_VIDEO_SAMSUNG_S5P_FIMC
@@ -4378,6 +4410,7 @@ MACHINE_END
 
 MACHINE_START(SMDK4412, "SMDK4X12")
 	.boot_params	= S5P_PA_SDRAM + 0x100,
+	.reserve	= smdk4x12_reserve,
 	.init_irq	= exynos4_init_irq,
 	.map_io		= smdk4x12_map_io,
 	.init_machine	= smdk4x12_machine_init,
