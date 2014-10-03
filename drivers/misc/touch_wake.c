@@ -99,7 +99,7 @@ static void touchwake_early_suspend(struct early_suspend * h)
 #endif
 
 	if (touchwake_enabled) {
-		if (device_charging) {
+		if (is_cable_attached) {
 			if (likely(charging_touchoff_delay > 0)) {
 				if (timed_out && !prox_near) {
 #ifdef DEBUG_PRINT
