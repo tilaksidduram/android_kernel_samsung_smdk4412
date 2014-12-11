@@ -1250,7 +1250,7 @@ static int s5c73m3_check_fw(struct v4l2_subdev *sd, int download)
 	/* retVal = 0 : Same Version
 	retVal < 0 : Phone Version is latest Version than sensorFW.
 	retVal > 0 : Sensor Version is latest version than phoenFW. */
-	if (retVal <= 0 || download) {
+	if (retVal < 0 || download) { //DerTeufel: only load firmware from phone, if it is newer than in data.
 		cam_dbg("Loading From PhoneFW......\n");
 
 		/* In case that there is no FW in phone and FW needs to be
