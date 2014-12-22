@@ -213,7 +213,7 @@ static int mfc_open(struct inode *inode, struct file *file)
 
 	mutex_lock(&mfcdev->lock);
 
-#ifdef CONFIG_USE_MFC_CMA
+#if defined(CONFIG_USE_MFC_CMA) && defined(CONFIG_MACH_M0)
 	if (atomic_read(&mfcdev->inst_cnt) == 0) {
 		size_t size = 0x02800000;
 		mfcdev->cma_vaddr = dma_alloc_coherent(mfcdev->device, size,
@@ -413,15 +413,6 @@ err_inst_cnt:
 #endif
 err_start_hw:
 	if (atomic_read(&mfcdev->inst_cnt) == 0) {
-#ifdef CONFIG_USE_MFC_CMA
-		size_t size = 0x02800000;
-		dma_free_coherent(mfcdev->device, size, mfcdev->cma_vaddr,
-							mfcdev->cma_dma_addr);
-		printk(KERN_INFO "%s[%d] size 0x%x, vaddr 0x%x, base 0x0%x\n",
-				__func__, __LINE__, (int)size,
-				(int) mfcdev->cma_vaddr,
-				(int)mfcdev->cma_dma_addr);
-#endif
 		if (mfc_power_off() < 0)
 			mfc_err("power disable failed\n");
 	}
@@ -574,7 +565,7 @@ static int mfc_release(struct inode *inode, struct file *file)
 
 err_pwr_disable:
 
-#ifdef CONFIG_USE_MFC_CMA
+#if defined(CONFIG_USE_MFC_CMA) && defined(CONFIG_MACH_M0)
 	if (atomic_read(&mfcdev->inst_cnt) == 0) {
 		size_t size = 0x02800000;
 		dma_free_coherent(mfcdev->device, size, mfcdev->cma_vaddr,
@@ -986,16 +977,6 @@ static long mfc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		/* RMVME: need locking ? */
 		mutex_lock(&dev->lock);
 
-		if (mfc_ctx->state < INST_STATE_SETUP) {
-			mfc_err("IOCTL_MFC_GET_CONFIG invalid state: 0x%08x\n",
-					mfc_ctx->state);
-			in_param.ret_code = MFC_STATE_INVALID;
-			ret = -EINVAL;
-
-			mutex_unlock(&dev->lock);
-			break;
-		}
-
 		cfg_arg = (struct mfc_config_arg *)&in_param.args;
 
 		in_param.ret_code = mfc_get_inst_cfg(mfc_ctx, cfg_arg->type,
@@ -1102,13 +1083,9 @@ static int mfc_mmap(struct file *file, struct vm_area_struct *vma)
 	unsigned long start, size;
 #endif
 #endif
-	mfc_info("%s line : %d IN\n", __func__, __LINE__);
 	mfc_ctx = (struct mfc_inst_ctx *)file->private_data;
-	if (!mfc_ctx) {
-		mfc_err("%s line : %d mfc_ctx is NULL\n",
-					__func__, __LINE__);
+	if (!mfc_ctx)
 		return -EINVAL;
-	}
 
 #if !(defined(CONFIG_VIDEO_MFC_VCM_UMP) || defined(CONFIG_S5P_VMEM))
 	dev = mfc_ctx->dev;
@@ -1348,30 +1325,9 @@ static int mfc_mmap(struct file *file, struct vm_area_struct *vma)
 	return 0;
 }
 
-#ifdef CONFIG_USE_MFC_CMA
-/* FIXME: workaround for CMA migration fail due to page lock */
-static int mfc_open_with_retry(struct inode *inode, struct file *file)
-{
-	int ret;
-	int i = 0;
-
-	ret = mfc_open(inode, file);
-
-	while (ret == -ENOMEM && i++ < 10) {
-		msleep(1000);
-		ret = mfc_open(inode, file);
-	}
-
-	return ret;
-}
-#define MFC_OPEN mfc_open_with_retry
-#else
-#define MFC_OPEN mfc_open
-#endif
-
 static const struct file_operations mfc_fops = {
 	.owner		= THIS_MODULE,
-	.open		= MFC_OPEN,
+	.open		= mfc_open,
 	.release	= mfc_release,
 	.unlocked_ioctl	= mfc_ioctl,
 	.mmap		= mfc_mmap,
