@@ -15,7 +15,6 @@
 
 #define PLAT_PHYS_OFFSET		UL(0x40000000)
 #define CONSISTENT_DMA_SIZE		(SZ_8M + SZ_8M + SZ_4M)
-#define END_MEM				UL(0xbfefffff)
 
 #if defined(CONFIG_MACH_SMDKV310) || defined(CONFIG_MACH_SMDK5250)
 #define NR_BANKS			16
