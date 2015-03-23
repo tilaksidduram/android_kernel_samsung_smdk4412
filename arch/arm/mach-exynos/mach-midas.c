@@ -194,10 +194,6 @@ struct s3cfb_extdsp_lcd {
 #include <linux/i2c/tc370-touchkey.h>
 #endif
 
-#ifdef CONFIG_KEXEC_HARDBOOT
-#include <asm/kexec.h>
-#endif
-
 #if defined(CONFIG_MACH_GC1)
 #include <mach/gc1-jack.h>
 #endif
