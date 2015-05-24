@@ -6,10 +6,8 @@
 
 #ifdef CONFIG_KEXEC_HARDBOOT
 #include <asm/memory.h>
-#ifdef CONFIG_ARCH_EXYNOS4
 #include <mach/map.h>
 #include <mach/regs-pmu.h>
-#endif
 #endif
 
 	.globl relocate_new_kernel
@@ -89,7 +87,6 @@ hardboot:
 	ldr	r1, =KEXEC_HB_PAGE_MAGIC
 	str	r1, [r0]
 
-#ifdef CONFIG_ARCH_EXYNOS4
 	/* Hard reset via SWRESET, decompressor jumps to kernel.
 	 * exynos4_sw_reset does this three times with a 500 ms delay.
 	 * Hopefully one instance just works. */
@@ -97,9 +94,6 @@ hardboot:
 	mov	r1, #1
 	str	r1, [r0, #S5P_SWRESET-S5P_PMUREG(0)]
 loop:	b	loop
-#else
-#error "No reboot method defined for hardboot."
-#endif
 
 	.ltorg
 #endif
