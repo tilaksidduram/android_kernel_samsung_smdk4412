@@ -27,6 +27,12 @@
 /* Required by ION to allocate scatterlist(sglist) with nents > 256 */
 #define ARCH_HAS_SG_CHAIN
 
+#ifdef CONFIG_KEXEC_HARDBOOT
+#ifdef CONFIG_MACH_MIDAS
+#define KEXEC_HB_PAGE_ADDR		UL(0xbfd00000)
+#endif
+#endif
+
 #ifdef CONFIG_EXYNOS_MARK_PAGE_HOLES
 #define PAGE_HOLE_EVEN_ODD	1 /* if even, 0 */
 #define RAMCH_UNBALANCE_START_OFF (SZ_1G) /* + SZ_512M */
@@ -35,10 +41,6 @@
 	&& ((pfn & 1) == PAGE_HOLE_EVEN_ODD))
 #else
 #define is_pfn_hole(pfn) 0
-#endif
-
-#if defined (CONFIG_KEXEC_HARDBOOT)
-#define KEXEC_HB_PAGE_ADDR		UL(0xbfd00000)
 #endif
 
 #endif /* __ASM_ARCH_MEMORY_H */
