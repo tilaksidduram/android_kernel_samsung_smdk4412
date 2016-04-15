@@ -1106,13 +1106,11 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 #ifdef CONFIG_TOUCH_WAKE
 		if (mms_ts_suspended) {
 			if (knockon) {
-				if (touch_is_pressed == 0) {
-					if (knockon_reset) {
-						knockon_reset = false;
-						touch_press();
-					} else {
-						knockon_reset = true;
-					}
+				if (knockon_reset) {
+					knockon_reset = false;
+					touch_press();
+				} else {
+					knockon_reset = true;
 				}
 			} else {
 				touch_press();
