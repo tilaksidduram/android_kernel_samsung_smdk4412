@@ -42,6 +42,7 @@ extern void touchscreen_disable(void);
 
 static bool touchwake_enabled = false;
 static bool keypower_mode = false;
+static bool charging_mode = false;
 static bool touch_disabled = false;
 static bool device_suspended = false;
 static bool timed_out = true;
@@ -127,7 +128,7 @@ static void touchwake_early_suspend(struct early_suspend * h)
 					touchwake_disable_touch();
 				}
 			}
-		} else {
+		} else if (!charging_mode) {
 			if (likely(touchoff_delay > 0))	{
 				if (timed_out && !prox_near) {
 #ifdef DEBUG_PRINT
@@ -155,6 +156,11 @@ static void touchwake_early_suspend(struct early_suspend * h)
 					touchwake_disable_touch();
 				}
 			}
+		} else {
+#ifdef DEBUG_PRINT
+			pr_info("[TOUCHWAKE] Early suspend - disable touch immediately (TouchWake disabled when not charging)\n");
+#endif
+			touchwake_disable_touch();
 		}
 	} else {
 #ifdef DEBUG_PRINT
@@ -288,6 +294,28 @@ static ssize_t touchwake_keypower_write(struct device * dev, struct device_attri
 	return size;
 }
 
+static ssize_t touchwake_charging_read(struct device * dev, struct device_attribute * attr, char * buf)
+{
+	return sprintf(buf, "%u\n", (charging_mode ? 1 : 0));
+}
+
+static ssize_t touchwake_charging_write(struct device * dev, struct device_attribute * attr, const char * buf, size_t size)
+{
+	unsigned int ret = -EINVAL;
+	int val;
+
+	// read value from input buffer
+	ret = sscanf(buf, "%d", &val);
+
+	// check value and store if valid
+	if ((val == 0) ||  (val == 1))
+	{
+		charging_mode = val;
+	}
+
+	return size;
+}
+
 static ssize_t touchwake_knockon_read(struct device * dev, struct device_attribute * attr, char * buf)
 {
 	return sprintf(buf, "%u\n", (knockon ? 1 : 0));
@@ -369,6 +397,7 @@ static DEVICE_ATTR(knockon, S_IRUGO | S_IWUGO, touchwake_knockon_read, touchwake
 static DEVICE_ATTR(delay, S_IRUGO | S_IWUGO, touchwake_delay_read, touchwake_delay_write);
 static DEVICE_ATTR(charging_delay, S_IRUGO | S_IWUGO, touchwake_charging_delay_read, touchwake_charging_delay_write);
 static DEVICE_ATTR(keypower_mode, S_IRUGO | S_IWUGO, touchwake_keypower_read, touchwake_keypower_write);
+static DEVICE_ATTR(charging_mode, S_IRUGO | S_IWUGO, touchwake_charging_read, touchwake_charging_write);
 static DEVICE_ATTR(version, S_IRUGO , touchwake_version, NULL);
 #ifdef DEBUG_PRINT
 static DEVICE_ATTR(debug, S_IRUGO , touchwake_debug, NULL);
@@ -380,6 +409,7 @@ static struct attribute *touchwake_notification_attributes[] =
 	&dev_attr_knockon.attr,
 	&dev_attr_delay.attr,
 	&dev_attr_keypower_mode.attr,
+	&dev_attr_charging_mode.attr,
 	&dev_attr_charging_delay.attr,
 	&dev_attr_version.attr,
 #ifdef DEBUG_PRINT
