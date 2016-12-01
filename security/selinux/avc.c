@@ -460,7 +460,7 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 /* This is the slow part of avc audit with big stack footprint */
 static noinline int slow_avc_audit(u32 ssid, u32 tsid, u16 tclass,
 		u32 requested, u32 audited, u32 denied,
-		struct common_audit_data *a,
+		struct av_decision *avd, struct common_audit_data *a,
 		unsigned flags)
 {
 	struct common_audit_data stack_data;
@@ -553,12 +553,12 @@ inline int avc_audit(u32 ssid, u32 tsid,
 //	a->selinux_audit_data.denied = 0;
 	return slow_avc_audit(ssid, tsid, tclass,
 		requested, audited, allowed,
-		a, flags);
+		avd, a, flags);
 #else
 //	a->selinux_audit_data.denied = denied;
 	return slow_avc_audit(ssid, tsid, tclass,
 		requested, audited, denied,
-		a, flags);
+		avd, a, flags);
 #endif
 }
 
