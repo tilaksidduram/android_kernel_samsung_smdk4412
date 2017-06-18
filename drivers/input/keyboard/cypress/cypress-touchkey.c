@@ -137,7 +137,7 @@ extern int get_touchkey_firmware(char *version);
 static int touchkey_led_status;
 static int touchled_cmd_reversed;
 static int led_on_keypress = 0;
-static bool touchkey_pressed = false;
+//static bool touchkey_pressed = false;
 static bool touchkey_pressed_reversed = false;
 
 static int touchkey_debug_count;
